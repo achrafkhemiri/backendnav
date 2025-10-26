@@ -1,0 +1,55 @@
+# Build output
+target/
+build/
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+docs/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml
+Dockerfile
+docker-compose*.yml
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test
+src/test/
+
+# Other
+node_modules/
+frontend/
+
