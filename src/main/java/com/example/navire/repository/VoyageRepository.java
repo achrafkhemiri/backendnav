@@ -9,6 +9,10 @@ public interface VoyageRepository extends JpaRepository<Voyage, Long> {
     boolean existsByNumBonLivraison(String numBonLivraison);
     boolean existsByNumTicket(String numTicket);
 
+    // Allow checking existence of voyages by linked entities
+    boolean existsByChauffeurId(Long chauffeurId);
+    boolean existsByCamionId(Long camionId);
+
     java.util.List<Voyage> findByProjetId(Long projetId);
     java.util.List<Voyage> findByProjetClientId(Long projetClientId);
 }

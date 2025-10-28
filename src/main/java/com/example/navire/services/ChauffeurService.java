@@ -18,6 +18,8 @@ public class ChauffeurService {
     private ChauffeurRepository chauffeurRepository;
     @Autowired
     private ChauffeurMapper chauffeurMapper;
+    @Autowired
+    private com.example.navire.repository.VoyageRepository voyageRepository;
 
     public List<ChauffeurDTO> getAllChauffeurs() {
         return chauffeurRepository.findAll().stream()
@@ -49,6 +51,10 @@ public class ChauffeurService {
     public void deleteChauffeur(Long id) {
         if (!chauffeurRepository.existsById(id)) {
             throw new ChauffeurNotFoundException(id);
+        }
+        // Prevent deletion if chauffeur is referenced in any voyage
+        if (voyageRepository.existsByChauffeurId(id)) {
+            throw new IllegalArgumentException("Impossible de supprimer le chauffeur : il est utilisé dans un ou plusieurs voyages.");
         }
         chauffeurRepository.deleteById(id);
     }

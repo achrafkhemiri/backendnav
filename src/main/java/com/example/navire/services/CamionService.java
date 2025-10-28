@@ -18,6 +18,8 @@ public class CamionService {
     private CamionRepository camionRepository;
     @Autowired
     private CamionMapper camionMapper;
+    @Autowired
+    private com.example.navire.repository.VoyageRepository voyageRepository;
 
     public List<CamionDTO> getAllCamions() {
         return camionRepository.findAll().stream()
@@ -53,6 +55,10 @@ public class CamionService {
     public void deleteCamion(Long id) {
         if (!camionRepository.existsById(id)) {
             throw new CamionNotFoundException(id);
+        }
+        // Prevent deletion if camion is referenced in any voyage
+        if (voyageRepository.existsByCamionId(id)) {
+            throw new IllegalArgumentException("Impossible de supprimer le camion : il est utilisé dans un ou plusieurs voyages.");
         }
         camionRepository.deleteById(id);
     }

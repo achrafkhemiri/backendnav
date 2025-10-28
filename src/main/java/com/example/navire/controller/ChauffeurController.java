@@ -43,7 +43,7 @@ public class ChauffeurController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler({ChauffeurNotFoundException.class})
+    @ExceptionHandler({ChauffeurNotFoundException.class, IllegalArgumentException.class})
     public ResponseEntity<String> handleException(Exception ex) {
         if (ex instanceof ChauffeurNotFoundException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
