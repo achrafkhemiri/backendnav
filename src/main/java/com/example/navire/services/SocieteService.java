@@ -59,6 +59,12 @@ public class SocieteService {
         societe.setRcs(dto.getRcs());
         societe.setContact(dto.getContact());
         societe.setTva(dto.getTva());
+        societe.setLogo(dto.getLogo());
+        societe.setDescription(dto.getDescription());
+        
+        System.out.println("💾 Sauvegarde société - Logo présent: " + (societe.getLogo() != null && !societe.getLogo().isEmpty()) + 
+                          ", Description: " + (societe.getDescription() != null ? societe.getDescription().substring(0, Math.min(30, societe.getDescription().length())) + "..." : "null"));
+        
         return societeMapper.toDTO(societeRepository.save(societe));
     }
 

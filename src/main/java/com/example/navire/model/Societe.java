@@ -39,6 +39,13 @@ public class Societe {
     @Column(name = "tva", length = 50)
     private String tva;
 
+    @Lob
+    @Column(name = "logo", columnDefinition = "LONGTEXT")
+    private String logo; // Base64 encoded image
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     // Relation Many-to-Many avec Projet
     @ManyToMany(mappedBy = "societes")
     @ToString.Exclude

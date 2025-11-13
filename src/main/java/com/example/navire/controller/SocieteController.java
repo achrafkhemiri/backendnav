@@ -28,12 +28,20 @@ public class SocieteController {
 
     @PostMapping
     public ResponseEntity<SocieteDTO> createSociete(@RequestBody @jakarta.validation.Valid SocieteDTO dto) {
+        System.out.println("🆕 CREATE Société - Nom: " + dto.getNom() + 
+                          ", Logo présent: " + (dto.getLogo() != null && !dto.getLogo().isEmpty()) +
+                          ", Description: " + (dto.getDescription() != null ? dto.getDescription().substring(0, Math.min(50, dto.getDescription().length())) + "..." : "null"));
         SocieteDTO created = societeService.createSociete(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SocieteDTO> updateSociete(@PathVariable Long id, @RequestBody @jakarta.validation.Valid SocieteDTO dto) {
+        System.out.println("✏️ UPDATE Société ID: " + id + 
+                          ", Nom: " + dto.getNom() + 
+                          ", Logo présent: " + (dto.getLogo() != null && !dto.getLogo().isEmpty()) +
+                          ", Logo length: " + (dto.getLogo() != null ? dto.getLogo().length() : 0) +
+                          ", Description: " + (dto.getDescription() != null ? dto.getDescription().substring(0, Math.min(50, dto.getDescription().length())) + "..." : "null"));
         SocieteDTO updated = societeService.updateSociete(id, dto);
         return ResponseEntity.ok(updated);
     }

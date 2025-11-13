@@ -76,6 +76,8 @@ public class ProjetService {
                 s.setRcs(sDto.getRcs());
                 s.setContact(sDto.getContact());
                 s.setTva(sDto.getTva());
+                s.setLogo(sDto.getLogo());
+                s.setDescription(sDto.getDescription());
                 s = societeRepository.save(s);
                 societes.add(s);
             }
@@ -133,6 +135,8 @@ public class ProjetService {
                     s.setRcs(sDto.getRcs());
                     s.setContact(sDto.getContact());
                     s.setTva(sDto.getTva());
+                    s.setLogo(sDto.getLogo());
+                    s.setDescription(sDto.getDescription());
                     s = societeRepository.save(s);
                     societesMaj.add(s);
                 }

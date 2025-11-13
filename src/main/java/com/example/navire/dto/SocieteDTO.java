@@ -21,4 +21,8 @@ public class SocieteDTO {
     private String contact;
 
     private String tva;
+
+    private String logo; // Base64 encoded image
+
+    private String description;
 }
