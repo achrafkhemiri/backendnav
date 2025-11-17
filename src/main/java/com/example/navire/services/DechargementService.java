@@ -104,6 +104,10 @@ public class DechargementService {
         Dechargement dechargement = dechargementRepository.findById(id)
                 .orElseThrow(() -> new DechargementNotFoundException(id));
 
+        // 🔥 Sauvegarder les anciennes valeurs pour trouver le voyage correspondant
+        String oldNumBonLivraison = dechargement.getNumBonLivraison();
+        String oldNumTicket = dechargement.getNumTicket();
+
         // Valider l'existence des entités liées
         if (dechargementDTO.getChargementId() != null) {
             Chargement chargement = chargementRepository.findById(dechargementDTO.getChargementId())
@@ -169,6 +173,10 @@ public class DechargementService {
         }
 
         Dechargement updatedDechargement = dechargementRepository.save(dechargement);
+        
+        // 🔥 Mettre à jour le voyage correspondant pour synchroniser les quantités du dépôt
+        updateVoyageFromDechargement(updatedDechargement, oldNumBonLivraison, oldNumTicket);
+        
         return dechargementMapper.toDTO(updatedDechargement);
     }
 
@@ -250,6 +258,76 @@ public class DechargementService {
             voyage.setPoidsClient(0.0);
         } else {
             // Cas par défaut (ne devrait pas arriver)
+            voyage.setPoidsDepot(0.0);
+            voyage.setPoidsClient(0.0);
+        }
+        
+        voyageRepository.save(voyage);
+    }
+
+    /**
+     * Met à jour le voyage correspondant au déchargement modifié
+     * Synchronise les quantités du dépôt/client
+     */
+    private void updateVoyageFromDechargement(Dechargement dechargement, String oldNumBonLivraison, String oldNumTicket) {
+        // Trouver le voyage correspondant en utilisant les anciennes valeurs
+        String searchBonLivraison = oldNumBonLivraison != null ? oldNumBonLivraison : dechargement.getNumBonLivraison();
+        String searchTicket = oldNumTicket != null ? oldNumTicket : dechargement.getNumTicket();
+        
+        if (searchBonLivraison == null || searchTicket == null) {
+            // Impossible de trouver le voyage sans ces informations
+            return;
+        }
+        
+        // Chercher le voyage par numBonLivraison ET numTicket
+        List<Voyage> voyages = voyageRepository.findByNumBonLivraisonAndNumTicket(searchBonLivraison, searchTicket);
+        
+        if (voyages.isEmpty()) {
+            // Aucun voyage trouvé, peut-être qu'il faut le créer
+            createVoyageFromDechargement(dechargement);
+            return;
+        }
+        
+        // Prendre le premier voyage trouvé (devrait être unique)
+        Voyage voyage = voyages.get(0);
+        Chargement chargement = dechargement.getChargement();
+        
+        // Mettre à jour les informations du voyage
+        voyage.setNumBonLivraison(dechargement.getNumBonLivraison());
+        voyage.setNumTicket(dechargement.getNumTicket());
+        voyage.setDate(dechargement.getDateDechargement() != null ? dechargement.getDateDechargement() : voyage.getDate());
+        
+        if (chargement != null) {
+            voyage.setSociete(chargement.getSociete());
+            voyage.setSocieteP(chargement.getSocieteP());
+            voyage.setCamion(chargement.getCamion());
+            voyage.setChauffeur(chargement.getChauffeur());
+            voyage.setProjet(chargement.getProjet());
+        }
+        
+        // Mettre à jour le client/dépôt
+        voyage.setClient(dechargement.getClient());
+        voyage.setDepot(dechargement.getDepot());
+        
+        // Mettre à jour le code d'autorisation
+        voyage.setAutorisationCode(dechargement.getAutorisationCode());
+        
+        // Recalculer la quantité (poids complet - poids vide)
+        Double quantite = 0.0;
+        if (dechargement.getPoidComplet() != null && dechargement.getPoidCamionVide() != null) {
+            quantite = dechargement.getPoidComplet() - dechargement.getPoidCamionVide();
+        }
+        voyage.setQuantite(quantite);
+        voyage.setReste(quantite);
+        
+        // 🔥 Mettre à jour les poids selon la destination (client ou dépôt)
+        if (dechargement.getClient() != null) {
+            voyage.setPoidsClient(quantite);
+            voyage.setPoidsDepot(0.0);
+        } else if (dechargement.getDepot() != null) {
+            voyage.setPoidsDepot(quantite);
+            voyage.setPoidsClient(0.0);
+        } else {
             voyage.setPoidsDepot(0.0);
             voyage.setPoidsClient(0.0);
         }
